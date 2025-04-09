@@ -1,146 +1,171 @@
 # The Lense Shop
 
-A premium e-commerce platform for Japanese vehicle lighting products with complete offline deployment support.
+![The Lense Shop](https://i.imgur.com/OjR2ISW.png)
 
-## Project Overview
+A premium e-commerce platform specializing in high-quality Japanese vehicle lighting products, with complete offline deployment support.
 
-**The Lense Shop** is a modern e-commerce platform specializing in high-quality Japanese vehicle lighting products with these key features:
+## 📋 Project Overview
 
-- Product catalog with categories and filtering
-- Vehicle-specific product search
-- Shopping cart functionality
-- Stripe payment integration
-- Responsive design with mobile support
-- WhatsApp business integration
+**The Lense Shop** is a modern, fully-featured e-commerce platform built with these key capabilities:
 
-## Tech Stack
+- **Product Catalog** - Organized by categories with advanced filtering
+- **Vehicle-Specific Search** - Find parts matching specific makes and models
+- **Shopping Cart** - Seamless shopping experience with session-based cart
+- **Stripe Payment Integration** - Secure checkout process
+- **Responsive Design** - Optimized for mobile, tablet, and desktop
+- **WhatsApp Business Integration** - Direct customer support channels
+- **Offline Deployment** - Support for WAMP/XAMPP local development
 
-- **Frontend**: React, Tailwind CSS, Shadcn UI components
-- **Backend**: Express.js, Node.js
-- **Database**: PostgreSQL with Drizzle ORM
-- **Payment**: Stripe API
-
-## Offline Deployment Guide
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- [WAMP](https://www.wampserver.com/en/) (Windows) or [XAMPP](https://www.apachefriends.org/index.html) (Cross-platform)
 - [Node.js](https://nodejs.org/) (v18+ recommended)
 - [PostgreSQL](https://www.postgresql.org/download/) (v14+ recommended)
+- [WAMP](https://www.wampserver.com/en/) (Windows) or [XAMPP](https://www.apachefriends.org/index.html) (Cross-platform)
 
-### Database Setup
+### Installation
 
-1. **Install PostgreSQL** if you haven't already
-   - During installation, note your admin password
+1. **Download & Extract** the complete project archive:
+   - Project source code: `the-lense-shop.zip`
+   - Database export: `thelenseshop_db_dump.sql`
 
-2. **Create a new database**
+2. **Set up the database**:
    ```sql
    CREATE DATABASE thelenseshop;
    ```
-
-3. **Import the database dump**
-   - Open pgAdmin or use psql command-line tool
-   - Connect to your `thelenseshop` database
-   - Import the SQL dump file: `thelenseshop_db_dump.sql`
-
-   Using psql command line:
+   Then import the database dump:
    ```bash
-   psql -U postgres -d thelenseshop -f path/to/thelenseshop_db_dump.sql
+   psql -U postgres -d thelenseshop -f thelenseshop_db_dump.sql
    ```
 
-### Environment Setup
-
-1. **Create a `.env` file in the project root**:
-
+3. **Configure environment**:
+   Create a `.env` file in the project root:
    ```
    # Database Connection
    DATABASE_URL=postgresql://postgres:your_password@localhost:5432/thelenseshop
    
-   # Optional: Stripe Integration (if you want to test payments)
+   # Stripe Integration (optional)
    STRIPE_SECRET_KEY=your_stripe_secret_key
    VITE_STRIPE_PUBLIC_KEY=your_stripe_public_key
    ```
-   
-   Replace `your_password` with your PostgreSQL password and the Stripe keys if needed.
 
-### Installation and Setup
-
-1. **Extract the project files** from `the-lense-shop.zip`
-
-2. **Install dependencies**:
+4. **Install dependencies**:
    ```bash
    npm install
    ```
 
-3. **Build the project**:
+5. **Launch the application**:
    ```bash
-   npm run build
+   npm run dev  # Development mode with hot-reloading
+   # or
+   npm start    # Production mode
    ```
 
-4. **Run the application**:
-   ```bash
-   npm start
-   ```
+   The application will be available at `http://localhost:5000`
 
-   The application should now be running at `http://localhost:5000`
+## 🛠️ Tech Stack
 
-### Development Mode
+| Layer | Technologies |
+|-------|--------------|
+| **Frontend** | React, Tailwind CSS, Shadcn UI components |
+| **Backend** | Express.js, Node.js |
+| **Database** | PostgreSQL with Drizzle ORM |
+| **Payment** | Stripe API |
+| **State Management** | TanStack Query (React Query) |
+| **Form Handling** | React Hook Form with Zod validation |
 
-For development with hot-reloading:
+## 📁 Project Structure
 
-```bash
-npm run dev
+```
+├── client/               # Frontend React application
+│   ├── src/
+│   │   ├── components/   # UI components
+│   │   ├── hooks/        # Custom React hooks
+│   │   ├── lib/          # Utility functions
+│   │   ├── pages/        # Page components
+│   │   └── types/        # TypeScript type definitions
+│   └── index.html
+├── server/               # Backend Express application
+│   ├── index.ts          # Server entry point
+│   ├── routes.ts         # API endpoints
+│   ├── storage.ts        # Data access layer
+│   └── db.ts             # Database connection
+├── shared/               # Shared code between client and server
+│   └── schema.ts         # Database schema with Drizzle ORM
+└── docs/                 # Detailed documentation
+    ├── database-guide.md # Database setup instructions
+    ├── xampp-wamp-guide.md # XAMPP/WAMP integration guide
+    └── local-development.md # Development workflow guide
 ```
 
-## Database Schema
+## 🎨 Branding & Customization
 
-The application uses the following tables:
+The Lense Shop brand identity features:
 
-- `products`: Store product details (name, description, price, etc.)
-- `categories`: Product categories
-- `vehicle_makes`: Vehicle manufacturers
-- `vehicle_models`: Vehicle models linked to makes
-- `cart_items`: Shopping cart items
-- `users`: User accounts
+- **Primary colors**: 
+  - Red: `#E53935` 
+  - White: `#FFFFFF`
+  - Black: `#000000`
+- **Brand Tagline**: "Let there be light"
+- **Visual Motif**: Gear + lens icon
+- **Positioning**: Japanese‑vehicle spares & accessories specialist—technical, reliable, performance‑driven
 
-## Customization
+These values can be customized in:
+- `theme.json` - Main theme colors
+- Component styles - For component-specific styling
 
-### Branding
+## 🔌 Integrations
 
-The brand uses the following color scheme:
-- Primary Red: `#E53935`
-- White: `#FFFFFF`
-- Black: `#000000`
+### Stripe Payment Gateway
 
-These values can be modified in `theme.json` and various component files.
-
-## Stripe Integration (Optional)
-
-To enable payments, update your `.env` file with valid Stripe API keys:
+To enable payments:
 
 1. Sign up for a [Stripe account](https://dashboard.stripe.com/register)
 2. Get your API keys from the Stripe Dashboard
 3. Update the `.env` file with your keys
+4. Test the checkout flow with Stripe's test cards:
+   - Success card: `4242 4242 4242 4242`
+   - Failure card: `4000 0000 0000 0002`
 
-## Troubleshooting
+### WhatsApp Business
 
-### Database Connection Issues
+The application includes direct WhatsApp integration with configurable message templates. Update the WhatsApp number in `client/src/lib/constants.ts` to change the contact number.
 
-If you encounter database connection problems:
+## 📊 Database Schema
 
-1. Verify PostgreSQL is running
-2. Check your database credentials in `.env`
-3. Ensure the database name matches
+The application uses these primary tables:
 
-### Node.js Version Issues
+- `products` - Catalog items with pricing and inventory
+- `categories` - Product classifications
+- `vehicle_makes` - Car manufacturers
+- `vehicle_models` - Specific vehicle models
+- `cart_items` - User shopping cart
+- `users` - User accounts and authentication
 
-This project requires Node.js v16+. If you encounter compatibility issues:
+Full database documentation is available in `docs/database-guide.md`.
 
-1. Check your Node.js version: `node -v`
-2. Update Node.js if needed
+## 🔍 Troubleshooting
 
-## Support
+### Common Issues
 
-For further assistance, please contact:
-- Email: info@thelenseshop.com
-- WhatsApp: 0772 377 137
+| Problem | Solution |
+|---------|----------|
+| **Database Connection Errors** | Verify PostgreSQL is running and credentials in `.env` are correct |
+| **Missing Dependencies** | Run `npm install` to ensure all packages are installed |
+| **Port Conflicts** | Check if another application is using port 5000 and update if needed |
+| **Node.js Errors** | Ensure you're using Node.js v16+ (`node -v` to check) |
+
+### Extended Documentation
+
+For more detailed instructions, see:
+- Database setup: `docs/database-guide.md`
+- WAMP/XAMPP integration: `docs/xampp-wamp-guide.md`
+- Local development: `docs/local-development.md`
+
+## 📬 Support
+
+For further assistance:
+- **Email**: info@thelenseshop.com
+- **WhatsApp**: 0772 377 137
+- **Business Hours**: Mon-Fri (8:30 AM - 5:30 PM), Sat (9:00 AM - 2:00 PM)
