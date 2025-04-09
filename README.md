@@ -1,111 +1,146 @@
 # The Lense Shop
 
-A modern e-commerce platform for Japanese vehicle lighting products with WhatsApp integration for customer inquiries.
+A premium e-commerce platform for Japanese vehicle lighting products with complete offline deployment support.
 
-## Features
+## Project Overview
 
-- **Product Browsing**: Browse through a catalog of lighting products
-- **Vehicle-Specific Search**: Find products compatible with specific vehicle makes and models
-- **Shopping Cart**: Add products to cart and manage quantities
-- **WhatsApp Integration**: Contact sellers directly through WhatsApp
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
-- **Premium Visuals**: Animated backgrounds and interactive elements for a premium feel
+**The Lense Shop** is a modern e-commerce platform specializing in high-quality Japanese vehicle lighting products with these key features:
+
+- Product catalog with categories and filtering
+- Vehicle-specific product search
+- Shopping cart functionality
+- Stripe payment integration
+- Responsive design with mobile support
+- WhatsApp business integration
 
 ## Tech Stack
 
-- **Frontend**: React, TailwindCSS, Shadcn UI
-- **Backend**: Express.js
+- **Frontend**: React, Tailwind CSS, Shadcn UI components
+- **Backend**: Express.js, Node.js
 - **Database**: PostgreSQL with Drizzle ORM
-- **State Management**: React Query
-- **Routing**: Wouter
+- **Payment**: Stripe API
 
-## Getting Started
+## Offline Deployment Guide
 
 ### Prerequisites
 
-- Node.js v18+
-- npm
-- PostgreSQL
+- [WAMP](https://www.wampserver.com/en/) (Windows) or [XAMPP](https://www.apachefriends.org/index.html) (Cross-platform)
+- [Node.js](https://nodejs.org/) (v18+ recommended)
+- [PostgreSQL](https://www.postgresql.org/download/) (v14+ recommended)
 
-### Installation
+### Database Setup
 
-1. Clone the repository
-2. Install dependencies:
+1. **Install PostgreSQL** if you haven't already
+   - During installation, note your admin password
+
+2. **Create a new database**
+   ```sql
+   CREATE DATABASE thelenseshop;
+   ```
+
+3. **Import the database dump**
+   - Open pgAdmin or use psql command-line tool
+   - Connect to your `thelenseshop` database
+   - Import the SQL dump file: `thelenseshop_db_dump.sql`
+
+   Using psql command line:
+   ```bash
+   psql -U postgres -d thelenseshop -f path/to/thelenseshop_db_dump.sql
+   ```
+
+### Environment Setup
+
+1. **Create a `.env` file in the project root**:
+
+   ```
+   # Database Connection
+   DATABASE_URL=postgresql://postgres:your_password@localhost:5432/thelenseshop
+   
+   # Optional: Stripe Integration (if you want to test payments)
+   STRIPE_SECRET_KEY=your_stripe_secret_key
+   VITE_STRIPE_PUBLIC_KEY=your_stripe_public_key
+   ```
+   
+   Replace `your_password` with your PostgreSQL password and the Stripe keys if needed.
+
+### Installation and Setup
+
+1. **Extract the project files** from `the-lense-shop.zip`
+
+2. **Install dependencies**:
    ```bash
    npm install
    ```
-3. Set up the database (see [Database Guide](docs/database-guide.md))
-4. Create a `.env` file with your database connection string:
-   ```
-   DATABASE_URL=postgresql://username:password@localhost:5432/thelenseshop
-   ```
-5. Start the development server:
+
+3. **Build the project**:
    ```bash
-   npm run dev
+   npm run build
    ```
 
-## Documentation
+4. **Run the application**:
+   ```bash
+   npm start
+   ```
 
-Detailed documentation can be found in the `docs` directory:
+   The application should now be running at `http://localhost:5000`
 
-- [Installation Guide](docs/installation-guide.md): Complete installation instructions
-- [Database Guide](docs/database-guide.md): Database setup and management
-- [Code Structure](docs/code-structure.md): Project architecture and code organization
+### Development Mode
 
-## Database Backup and Restore
-
-The project includes scripts to easily backup and restore the database:
-
-```bash
-# Export the database
-./scripts/export-database.sh
-
-# The exports will be saved to:
-# - backup/db/schema.sql (structure only)
-# - backup/db/data.sql (data only)
-# - backup/db/full_backup.sql (structure and data)
-```
-
-These files can be used to restore the database on your local environment.
-
-## Running Locally with WAMP/XAMPP
-
-See the [Installation Guide](docs/installation-guide.md) for detailed instructions on running this project with WAMP or XAMPP.
-
-## Development Workflow
-
-1. Make changes to the code
-2. The development server will automatically reload
-3. Test your changes
-4. Run database migrations if needed: `npm run db:push`
-
-## Building for Production
+For development with hot-reloading:
 
 ```bash
-npm run build
-npm run start
+npm run dev
 ```
 
-## Project Structure
+## Database Schema
 
-```
-├── client/                 # Frontend React code
-├── server/                 # Backend Express.js code
-├── shared/                 # Shared code (schemas, types)
-├── scripts/                # Utility scripts
-├── docs/                   # Documentation
-├── backup/                 # Database backups
-└── various config files
-```
+The application uses the following tables:
 
-## Contributing
+- `products`: Store product details (name, description, price, etc.)
+- `categories`: Product categories
+- `vehicle_makes`: Vehicle manufacturers
+- `vehicle_models`: Vehicle models linked to makes
+- `cart_items`: Shopping cart items
+- `users`: User accounts
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Commit your changes: `git commit -m 'Add feature'`
-4. Push to the branch: `git push origin feature-name`
-5. Open a pull request
+## Customization
 
-## License
+### Branding
 
-This project is licensed under the MIT License.
+The brand uses the following color scheme:
+- Primary Red: `#E53935`
+- White: `#FFFFFF`
+- Black: `#000000`
+
+These values can be modified in `theme.json` and various component files.
+
+## Stripe Integration (Optional)
+
+To enable payments, update your `.env` file with valid Stripe API keys:
+
+1. Sign up for a [Stripe account](https://dashboard.stripe.com/register)
+2. Get your API keys from the Stripe Dashboard
+3. Update the `.env` file with your keys
+
+## Troubleshooting
+
+### Database Connection Issues
+
+If you encounter database connection problems:
+
+1. Verify PostgreSQL is running
+2. Check your database credentials in `.env`
+3. Ensure the database name matches
+
+### Node.js Version Issues
+
+This project requires Node.js v16+. If you encounter compatibility issues:
+
+1. Check your Node.js version: `node -v`
+2. Update Node.js if needed
+
+## Support
+
+For further assistance, please contact:
+- Email: info@thelenseshop.com
+- WhatsApp: 0772 377 137
