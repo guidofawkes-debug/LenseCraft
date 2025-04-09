@@ -4,7 +4,9 @@
 
 @layer base {
   :root {
-    --brand-orange: #FF5A00;
+    --brand-red: #E53935;
+    --brand-dark-red: #B71C1C;
+    --brand-light-red: #FFCDD2;
     --brand-yellow: #FFBF00; 
     --brand-blue: #00A3FF;
     --brand-white: #FFFFFF;
@@ -23,6 +25,15 @@
     @apply font-bold tracking-tighter;
   }
   
+  h2 {
+    @apply text-[#E53935] relative;
+  }
+  
+  h2::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-16 h-[3px] bg-[#E53935];
+  }
+  
   /* Custom scrollbar for brand identity */
   ::-webkit-scrollbar {
     width: 10px;
@@ -33,29 +44,33 @@
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-primary/70 rounded-full;
+    @apply bg-[#E53935]/70 rounded-full;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-primary;
+    @apply bg-[#E53935];
   }
 }
 
 @layer components {
   .card-gradient {
-    @apply bg-gradient-to-b from-black/80 to-black/90 border border-white/10 rounded-xl backdrop-blur-sm;
+    @apply bg-gradient-to-b from-black/80 to-black/90 border border-white/10 rounded-xl backdrop-blur-sm hover:border-[#E53935]/40;
   }
   
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-[#FFD700] to-white;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#E53935] via-[#FF9E80] to-white;
   }
   
   .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background;
+    @apply focus:outline-none focus:ring-2 focus:ring-[#E53935]/50 focus:ring-offset-2 focus:ring-offset-background;
   }
   
   .icon-container {
-    @apply flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary;
+    @apply flex items-center justify-center w-10 h-10 rounded-full bg-[#E53935]/10 text-[#E53935];
+  }
+  
+  .red-glow {
+    @apply shadow-lg shadow-[#E53935]/30;
   }
   
   .btn-glow {
@@ -66,6 +81,32 @@
     @apply content-[''] absolute top-0 left-[-100%] z-[-1] w-[200%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent;
     animation: btn-glow 2s infinite;
   }
+  
+  .red-accent {
+    @apply text-[#E53935] font-bold;
+  }
+  
+  .red-border {
+    @apply border-2 border-[#E53935];
+  }
+  
+  .red-bg {
+    @apply bg-[#E53935];
+  }
+}
+
+/* Red flash animation */
+@keyframes redFlash {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(229, 57, 53, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(229, 57, 53, 0.8);
+  }
+}
+
+.animate-red-flash {
+  animation: redFlash 2s infinite;
 }
 
 /* Custom animation for light beam */
