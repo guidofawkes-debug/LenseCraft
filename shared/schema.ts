@@ -1,5 +1,6 @@
 import { pgTable, text, serial, integer, boolean, jsonb, timestamp, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
+import { relations } from "drizzle-orm";
 import { z } from "zod";
 
 // Product model
@@ -88,6 +89,29 @@ export type InsertVehicleModel = z.infer<typeof insertVehicleModelSchema>;
 
 export type CartItem = typeof cartItems.$inferSelect;
 export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
+
+// Define relations
+export const productsRelations = relations(products, ({ many }) => ({
+  cartItems: many(cartItems),
+}));
+
+export const vehicleMakesRelations = relations(vehicleMakes, ({ many }) => ({
+  models: many(vehicleModels),
+}));
+
+export const vehicleModelsRelations = relations(vehicleModels, ({ one }) => ({
+  make: one(vehicleMakes, {
+    fields: [vehicleModels.makeId],
+    references: [vehicleMakes.id],
+  }),
+}));
+
+export const cartItemsRelations = relations(cartItems, ({ one }) => ({
+  product: one(products, {
+    fields: [cartItems.productId],
+    references: [products.id],
+  }),
+}));
 
 // Keep the User model from the original template
 export const users = pgTable("users", {

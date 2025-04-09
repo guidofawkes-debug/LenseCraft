@@ -10,8 +10,12 @@ import {
   type CartItem,
   type InsertCartItem,
   type User,
-  type InsertUser
+  type InsertUser,
+  users, products, categories, vehicleMakes, vehicleModels, cartItems
 } from "@shared/schema";
+import { db } from './db';
+import { eq, and, like, inArray, desc, asc, sql } from 'drizzle-orm';
+import { log } from './vite';
 
 export interface IStorage {
   // User operations (keep from original template)
@@ -51,227 +55,311 @@ export interface IStorage {
   removeFromCart(id: number): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private products: Map<number, Product>;
-  private categories: Map<number, Category>;
-  private vehicleMakes: Map<number, VehicleMake>;
-  private vehicleModels: Map<number, VehicleModel>;
-  private cartItems: Map<number, CartItem>;
-  
-  private currentUserId: number;
-  private currentProductId: number;
-  private currentCategoryId: number;
-  private currentVehicleMakeId: number;
-  private currentVehicleModelId: number;
-  private currentCartItemId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.products = new Map();
-    this.categories = new Map();
-    this.vehicleMakes = new Map();
-    this.vehicleModels = new Map();
-    this.cartItems = new Map();
-    
-    this.currentUserId = 1;
-    this.currentProductId = 1;
-    this.currentCategoryId = 1;
-    this.currentVehicleMakeId = 1;
-    this.currentVehicleModelId = 1;
-    this.currentCartItemId = 1;
-  }
-
-  // USER OPERATIONS (KEPT FROM ORIGINAL)
+export class DatabaseStorage implements IStorage {
+  // User operations
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    try {
+      const [user] = await db.select().from(users).where(eq(users.id, id));
+      return user;
+    } catch (err) {
+      log(`Error getting user: ${(err as Error).message}`, 'storage');
+      return undefined;
+    }
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    try {
+      const [user] = await db.select().from(users).where(eq(users.username, username));
+      return user;
+    } catch (err) {
+      log(`Error getting user by username: ${(err as Error).message}`, 'storage');
+      return undefined;
+    }
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+    try {
+      const [user] = await db.insert(users).values(insertUser).returning();
+      return user;
+    } catch (err) {
+      log(`Error creating user: ${(err as Error).message}`, 'storage');
+      throw err;
+    }
   }
 
-  // PRODUCT OPERATIONS
+  // Product operations
   async getAllProducts(filters?: {
     featured?: boolean;
     category?: string;
     make?: string;
     model?: string;
   }): Promise<Product[]> {
-    let products = Array.from(this.products.values());
-    
-    if (filters) {
-      if (filters.featured !== undefined) {
-        products = products.filter(product => product.featured === filters.featured);
+    try {
+      let query = db.select().from(products);
+      
+      // Build the where clause based on filters
+      if (filters) {
+        const conditions = [];
+        
+        if (filters.featured !== undefined) {
+          conditions.push(eq(products.featured, filters.featured));
+        }
+        
+        if (filters.category) {
+          conditions.push(eq(products.category, filters.category));
+        }
+        
+        // Note: make and model filtering will need to be done in JS
+        // since compatibleVehicles is stored as an array
+        if (conditions.length > 0) {
+          query = query.where(and(...conditions));
+        }
       }
       
-      if (filters.category) {
-        products = products.filter(product => product.category === filters.category);
-      }
+      // Execute the query
+      let result = await query.orderBy(desc(products.featured), asc(products.name));
       
-      if (filters.make || filters.model) {
-        products = products.filter(product => {
-          const compatibleVehicles = product.compatibleVehicles;
-          
+      // Apply make/model filtering if needed
+      if (filters?.make || filters?.model) {
+        result = result.filter(product => {
+          const compatibilities = product.compatibleVehicles;
           if (filters.make && filters.model) {
-            // Filter by both make and model
-            return compatibleVehicles.some(
-              vehicle => vehicle.includes(filters.make!) && vehicle.includes(filters.model!)
+            return compatibilities.some(compat => 
+              compat.includes(filters.make!) && compat.includes(filters.model!)
             );
           } else if (filters.make) {
-            // Filter by make only
-            return compatibleVehicles.some(vehicle => vehicle.includes(filters.make!));
+            return compatibilities.some(compat => compat.includes(filters.make!));
           } else if (filters.model) {
-            // Filter by model only
-            return compatibleVehicles.some(vehicle => vehicle.includes(filters.model!));
+            return compatibilities.some(compat => compat.includes(filters.model!));
           }
-          
           return true;
         });
       }
+      
+      return result;
+    } catch (err) {
+      log(`Error getting products: ${(err as Error).message}`, 'storage');
+      return [];
     }
-    
-    return products;
   }
 
   async getProductById(id: number): Promise<Product | undefined> {
-    return this.products.get(id);
+    try {
+      const [product] = await db.select().from(products).where(eq(products.id, id));
+      return product;
+    } catch (err) {
+      log(`Error getting product by id: ${(err as Error).message}`, 'storage');
+      return undefined;
+    }
   }
 
   async createProduct(product: InsertProduct): Promise<Product> {
-    const id = this.currentProductId++;
-    const createdAt = new Date();
-    
-    const newProduct: Product = { 
-      ...product, 
-      id, 
-      createdAt,
-      featured: product.featured ?? false,
-      tags: product.tags ?? []
-    };
-    this.products.set(id, newProduct);
-    
-    return newProduct;
+    try {
+      const [newProduct] = await db.insert(products).values({
+        ...product,
+        featured: product.featured ?? false,
+        tags: product.tags ?? []
+      }).returning();
+      
+      return newProduct;
+    } catch (err) {
+      log(`Error creating product: ${(err as Error).message}`, 'storage');
+      throw err;
+    }
   }
 
-  // CATEGORY OPERATIONS
+  // Category operations
   async getAllCategories(): Promise<Category[]> {
-    return Array.from(this.categories.values());
+    try {
+      return await db.select().from(categories).orderBy(asc(categories.name));
+    } catch (err) {
+      log(`Error getting categories: ${(err as Error).message}`, 'storage');
+      return [];
+    }
   }
 
   async getCategoryById(id: number): Promise<Category | undefined> {
-    return this.categories.get(id);
+    try {
+      const [category] = await db.select().from(categories).where(eq(categories.id, id));
+      return category;
+    } catch (err) {
+      log(`Error getting category by id: ${(err as Error).message}`, 'storage');
+      return undefined;
+    }
   }
 
   async createCategory(category: InsertCategory): Promise<Category> {
-    const id = this.currentCategoryId++;
-    const newCategory: Category = { ...category, id };
-    this.categories.set(id, newCategory);
-    
-    return newCategory;
+    try {
+      const [newCategory] = await db.insert(categories).values(category).returning();
+      return newCategory;
+    } catch (err) {
+      log(`Error creating category: ${(err as Error).message}`, 'storage');
+      throw err;
+    }
   }
 
-  // VEHICLE MAKE OPERATIONS
+  // VehicleMake operations
   async getAllVehicleMakes(): Promise<VehicleMake[]> {
-    return Array.from(this.vehicleMakes.values());
+    try {
+      return await db.select().from(vehicleMakes).orderBy(asc(vehicleMakes.name));
+    } catch (err) {
+      log(`Error getting vehicle makes: ${(err as Error).message}`, 'storage');
+      return [];
+    }
   }
 
   async getVehicleMakeById(id: number): Promise<VehicleMake | undefined> {
-    return this.vehicleMakes.get(id);
+    try {
+      const [make] = await db.select().from(vehicleMakes).where(eq(vehicleMakes.id, id));
+      return make;
+    } catch (err) {
+      log(`Error getting vehicle make by id: ${(err as Error).message}`, 'storage');
+      return undefined;
+    }
   }
 
   async createVehicleMake(make: InsertVehicleMake): Promise<VehicleMake> {
-    const id = this.currentVehicleMakeId++;
-    const newMake: VehicleMake = { ...make, id };
-    this.vehicleMakes.set(id, newMake);
-    
-    return newMake;
+    try {
+      const [newMake] = await db.insert(vehicleMakes).values(make).returning();
+      return newMake;
+    } catch (err) {
+      log(`Error creating vehicle make: ${(err as Error).message}`, 'storage');
+      throw err;
+    }
   }
 
-  // VEHICLE MODEL OPERATIONS
+  // VehicleModel operations
   async getVehicleModelsByMake(makeId?: number): Promise<VehicleModel[]> {
-    const models = Array.from(this.vehicleModels.values());
-    
-    if (makeId !== undefined) {
-      return models.filter(model => model.makeId === makeId);
+    try {
+      if (makeId !== undefined) {
+        return await db.select().from(vehicleModels)
+          .where(eq(vehicleModels.makeId, makeId))
+          .orderBy(asc(vehicleModels.name));
+      } else {
+        return await db.select().from(vehicleModels).orderBy(asc(vehicleModels.name));
+      }
+    } catch (err) {
+      log(`Error getting vehicle models: ${(err as Error).message}`, 'storage');
+      return [];
     }
-    
-    return models;
   }
 
   async getVehicleModelById(id: number): Promise<VehicleModel | undefined> {
-    return this.vehicleModels.get(id);
+    try {
+      const [model] = await db.select().from(vehicleModels).where(eq(vehicleModels.id, id));
+      return model;
+    } catch (err) {
+      log(`Error getting vehicle model by id: ${(err as Error).message}`, 'storage');
+      return undefined;
+    }
   }
 
   async createVehicleModel(model: InsertVehicleModel): Promise<VehicleModel> {
-    const id = this.currentVehicleModelId++;
-    const newModel: VehicleModel = { ...model, id };
-    this.vehicleModels.set(id, newModel);
-    
-    return newModel;
+    try {
+      const [newModel] = await db.insert(vehicleModels).values(model).returning();
+      return newModel;
+    } catch (err) {
+      log(`Error creating vehicle model: ${(err as Error).message}`, 'storage');
+      throw err;
+    }
   }
 
-  // CART OPERATIONS
+  // Cart operations
   async getCartItems(sessionId: string): Promise<CartItem[]> {
-    const items = Array.from(this.cartItems.values());
-    return items.filter(item => item.sessionId === sessionId);
+    try {
+      // Get all cart items for the session
+      const items = await db.select().from(cartItems)
+        .where(eq(cartItems.sessionId, sessionId));
+      
+      // For each cart item, get the associated product
+      const result: CartItem[] = [];
+      for (const item of items) {
+        const [product] = await db.select().from(products)
+          .where(eq(products.id, item.productId));
+        
+        result.push({
+          ...item,
+          product
+        });
+      }
+      
+      return result;
+    } catch (err) {
+      log(`Error getting cart items: ${(err as Error).message}`, 'storage');
+      return [];
+    }
   }
 
   async addToCart(cartItem: InsertCartItem): Promise<CartItem> {
-    // Check if the product exists
-    const product = await this.getProductById(cartItem.productId);
-    if (!product) {
-      throw new Error(`Product with ID ${cartItem.productId} not found`);
-    }
-    
-    // Check for existing cart item
-    const existingItems = Array.from(this.cartItems.values()).filter(
-      item => item.sessionId === cartItem.sessionId && item.productId === cartItem.productId
-    );
-    
-    if (existingItems.length > 0) {
-      // Update quantity of existing item
-      const existingItem = existingItems[0];
-      const newQuantity = existingItem.quantity + cartItem.quantity;
+    try {
+      // Check if the product exists
+      const product = await this.getProductById(cartItem.productId);
+      if (!product) {
+        throw new Error(`Product with ID ${cartItem.productId} not found`);
+      }
       
-      return this.updateCartItemQuantity(existingItem.id, newQuantity) as Promise<CartItem>;
+      // Check for existing cart item
+      const existingItems = await db.select().from(cartItems).where(
+        and(
+          eq(cartItems.sessionId, cartItem.sessionId),
+          eq(cartItems.productId, cartItem.productId)
+        )
+      );
+      
+      if (existingItems.length > 0) {
+        // Update quantity of existing item
+        const existingItem = existingItems[0];
+        const newQuantity = existingItem.quantity + cartItem.quantity;
+        
+        return await this.updateCartItemQuantity(existingItem.id, newQuantity) as CartItem;
+      }
+      
+      // Create new cart item
+      const [newCartItem] = await db.insert(cartItems).values(cartItem).returning();
+      
+      return {
+        ...newCartItem,
+        product
+      };
+    } catch (err) {
+      log(`Error adding to cart: ${(err as Error).message}`, 'storage');
+      throw err;
     }
-    
-    // Create new cart item
-    const id = this.currentCartItemId++;
-    const createdAt = new Date();
-    
-    const newCartItem: CartItem = { ...cartItem, id, createdAt };
-    this.cartItems.set(id, newCartItem);
-    
-    return newCartItem;
   }
 
   async updateCartItemQuantity(id: number, quantity: number): Promise<CartItem | undefined> {
-    const cartItem = this.cartItems.get(id);
-    
-    if (!cartItem) {
+    try {
+      // Update the cart item
+      const [updatedItem] = await db.update(cartItems)
+        .set({ quantity })
+        .where(eq(cartItems.id, id))
+        .returning();
+      
+      if (!updatedItem) return undefined;
+      
+      // Get the associated product
+      const [product] = await db.select().from(products)
+        .where(eq(products.id, updatedItem.productId));
+      
+      return {
+        ...updatedItem,
+        product
+      };
+    } catch (err) {
+      log(`Error updating cart item quantity: ${(err as Error).message}`, 'storage');
       return undefined;
     }
-    
-    const updatedItem: CartItem = { ...cartItem, quantity };
-    this.cartItems.set(id, updatedItem);
-    
-    return updatedItem;
   }
 
   async removeFromCart(id: number): Promise<void> {
-    this.cartItems.delete(id);
+    try {
+      await db.delete(cartItems).where(eq(cartItems.id, id));
+    } catch (err) {
+      log(`Error removing from cart: ${(err as Error).message}`, 'storage');
+      throw err;
+    }
   }
 }
 
-export const storage = new MemStorage();
+// Replace MemStorage with DatabaseStorage
+export const storage = new DatabaseStorage();
