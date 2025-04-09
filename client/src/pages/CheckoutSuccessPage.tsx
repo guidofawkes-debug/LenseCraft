@@ -66,8 +66,8 @@ const CheckoutSuccessPage = () => {
             // where we would probably move items to an orders table
             console.log('Clearing cart with session ID:', sessionId);
             
-            // For now we're just logging but in a real app you'd make an API call
-            // await fetch(`/api/cart/${sessionId}/clear`, { method: 'POST' });
+            // Clear the cart via API call
+            await fetch(`/api/cart/${sessionId}/clear`, { method: 'POST' });
           }
         } else if (['processing', 'requires_payment_method', 'requires_confirmation'].includes(paymentIntent.status)) {
           setPaymentStatus('processing');

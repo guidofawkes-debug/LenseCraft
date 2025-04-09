@@ -78,20 +78,10 @@ const ProductCard = ({ product, hideActions = false }: ProductCardProps) => {
   // Get the first tag to display as a badge
   const badge = product.tags && product.tags.length > 0 ? product.tags[0] : null;
 
-  // Replace existing image URLs with automotive lighting focused images
+  // Use the product's actual image URL from the database
   const getEnhancedImageUrl = () => {
-    // Use a default automotive lighting image
-    const lightingImages = [
-      "https://images.unsplash.com/photo-1590838868821-963ce8e85845?auto=format&fit=crop&q=80&w=500",
-      "https://images.unsplash.com/photo-1621383460932-ac437a24b43c?auto=format&fit=crop&q=80&w=500",
-      "https://images.unsplash.com/photo-1528629297340-d1d466945dc5?auto=format&fit=crop&q=80&w=500",
-      "https://images.unsplash.com/photo-1589292074636-43ea507223d0?auto=format&fit=crop&q=80&w=500",
-      "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=500"
-    ];
-    
-    // Use product.id to select an image, ensuring consistent image per product
-    const index = product.id % lightingImages.length;
-    return lightingImages[index];
+    // Return the actual product image URL
+    return product.imageUrl;
   };
 
   return (
