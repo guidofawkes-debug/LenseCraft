@@ -8,10 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const VehicleSearch = () => {
   const [_, setLocation] = useLocation();
-  const [selectedMake, setSelectedMake] = useState<string>("");
-  const [selectedModel, setSelectedModel] = useState<string>("");
-  const [selectedYear, setSelectedYear] = useState<string>("");
-  const [selectedType, setSelectedType] = useState<string>("");
+  const [selectedMake, setSelectedMake] = useState<string>("all-makes");
+  const [selectedModel, setSelectedModel] = useState<string>("all-models");
+  const [selectedYear, setSelectedYear] = useState<string>("all-years");
+  const [selectedType, setSelectedType] = useState<string>("all-types");
 
   // Fetch vehicle makes
   const { data: makes } = useQuery<VehicleMake[]>({
@@ -22,7 +22,7 @@ const VehicleSearch = () => {
   const { data: models } = useQuery<VehicleModel[]>({
     queryKey: ['/api/vehicle-models', selectedMake],
     queryFn: async () => {
-      if (!selectedMake) return [];
+      if (!selectedMake || selectedMake === "all-makes") return [];
       const makeId = makes?.find(make => make.name === selectedMake)?.id;
       if (!makeId) return [];
       
@@ -30,11 +30,11 @@ const VehicleSearch = () => {
       if (!response.ok) throw new Error('Failed to fetch vehicle models');
       return response.json();
     },
-    enabled: !!selectedMake && !!makes?.length,
+    enabled: !!selectedMake && selectedMake !== "all-makes" && !!makes?.length,
   });
 
   // Generate years based on selected model
-  const years = selectedModel ? 
+  const years = selectedModel && selectedModel !== "all-models" ? 
     Array.from({ length: 10 }, (_, i) => (new Date().getFullYear() - i).toString()) :
     [];
 
@@ -42,9 +42,9 @@ const VehicleSearch = () => {
     e.preventDefault();
     
     const params = new URLSearchParams();
-    if (selectedMake) params.append('make', selectedMake);
-    if (selectedModel) params.append('model', selectedModel);
-    if (selectedType) params.append('category', selectedType);
+    if (selectedMake && selectedMake !== "all-makes") params.append('make', selectedMake);
+    if (selectedModel && selectedModel !== "all-models") params.append('model', selectedModel);
+    if (selectedType && selectedType !== "all-types") params.append('category', selectedType);
     
     setLocation(`/products?${params.toString()}`);
   };
@@ -71,7 +71,7 @@ const VehicleSearch = () => {
                     <SelectValue placeholder="Select Make" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Select Make</SelectItem>
+                    <SelectItem value="all-makes">Select Make</SelectItem>
                     {makes?.map((make) => (
                       <SelectItem key={make.id} value={make.name}>
                         {make.name}
@@ -88,13 +88,13 @@ const VehicleSearch = () => {
                 <Select 
                   value={selectedModel} 
                   onValueChange={setSelectedModel}
-                  disabled={!selectedMake}
+                  disabled={!selectedMake || selectedMake === "all-makes"}
                 >
                   <SelectTrigger id="model">
                     <SelectValue placeholder="Select Model" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Select Model</SelectItem>
+                    <SelectItem value="all-models">Select Model</SelectItem>
                     {models?.map((model) => (
                       <SelectItem key={model.id} value={model.name}>
                         {model.name}
@@ -113,13 +113,13 @@ const VehicleSearch = () => {
                 <Select 
                   value={selectedYear} 
                   onValueChange={setSelectedYear}
-                  disabled={!selectedModel}
+                  disabled={!selectedModel || selectedModel === "all-models"}
                 >
                   <SelectTrigger id="year">
                     <SelectValue placeholder="Select Year" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Select Year</SelectItem>
+                    <SelectItem value="all-years">Select Year</SelectItem>
                     {years.map((year) => (
                       <SelectItem key={year} value={year}>
                         {year}
@@ -138,7 +138,7 @@ const VehicleSearch = () => {
                     <SelectValue placeholder="All Types" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Types</SelectItem>
+                    <SelectItem value="all-types">All Types</SelectItem>
                     <SelectItem value="Headlights">Headlights</SelectItem>
                     <SelectItem value="Tail Lights">Tail Lights</SelectItem>
                     <SelectItem value="Signal Lights">Signal Lights</SelectItem>
