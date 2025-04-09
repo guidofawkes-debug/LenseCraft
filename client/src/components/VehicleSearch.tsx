@@ -9,8 +9,8 @@ import { Zap, Lightbulb, Car, Search } from "lucide-react";
 
 const VehicleSearch = () => {
   const [_, setLocation] = useLocation();
-  const [selectedMake, setSelectedMake] = useState<string>("all-makes");
-  const [selectedModel, setSelectedModel] = useState<string>("all-models");
+  const [selectedMakeId, setSelectedMakeId] = useState<string>("all-makes");
+  const [selectedModelId, setSelectedModelId] = useState<string>("all-models");
   const [selectedYear, setSelectedYear] = useState<string>("all-years");
   const [selectedType, setSelectedType] = useState<string>("all-types");
 
@@ -19,23 +19,31 @@ const VehicleSearch = () => {
     queryKey: ['/api/vehicle-makes'],
   });
 
+  // Get selected make name
+  const selectedMake = selectedMakeId !== "all-makes" 
+    ? makes?.find(make => make.id.toString() === selectedMakeId)?.name 
+    : undefined;
+
   // Fetch models based on selected make
   const { data: models } = useQuery<VehicleModel[]>({
-    queryKey: ['/api/vehicle-models', selectedMake],
+    queryKey: ['/api/vehicle-models', selectedMakeId],
     queryFn: async () => {
-      if (!selectedMake || selectedMake === "all-makes") return [];
-      const makeId = makes?.find(make => make.name === selectedMake)?.id;
-      if (!makeId) return [];
+      if (!selectedMakeId || selectedMakeId === "all-makes") return [];
       
-      const response = await fetch(`/api/vehicle-models?makeId=${makeId}`);
+      const response = await fetch(`/api/vehicle-models?makeId=${selectedMakeId}`);
       if (!response.ok) throw new Error('Failed to fetch vehicle models');
       return response.json();
     },
-    enabled: !!selectedMake && selectedMake !== "all-makes" && !!makes?.length,
+    enabled: !!selectedMakeId && selectedMakeId !== "all-makes",
   });
 
+  // Get selected model name
+  const selectedModel = selectedModelId !== "all-models"
+    ? models?.find(model => model.id.toString() === selectedModelId)?.name
+    : undefined;
+    
   // Generate years based on selected model
-  const years = selectedModel && selectedModel !== "all-models" ? 
+  const years = selectedModelId !== "all-models" ? 
     Array.from({ length: 10 }, (_, i) => (new Date().getFullYear() - i).toString()) :
     [];
 
@@ -43,8 +51,8 @@ const VehicleSearch = () => {
     e.preventDefault();
     
     const params = new URLSearchParams();
-    if (selectedMake && selectedMake !== "all-makes") params.append('make', selectedMake);
-    if (selectedModel && selectedModel !== "all-models") params.append('model', selectedModel);
+    if (selectedMake) params.append('make', selectedMake);
+    if (selectedModel) params.append('model', selectedModel);
     if (selectedType && selectedType !== "all-types") params.append('category', selectedType);
     
     setLocation(`/products?${params.toString()}`);
@@ -81,14 +89,17 @@ const VehicleSearch = () => {
                   <Label htmlFor="make" className="block text-sm font-medium text-white/80 mb-1 flex items-center">
                     <Car className="h-4 w-4 text-[#E53935] mr-2" /> Make
                   </Label>
-                  <Select value={selectedMake} onValueChange={setSelectedMake}>
+                  <Select 
+                    value={selectedMakeId} 
+                    onValueChange={(value) => setSelectedMakeId(value)}
+                  >
                     <SelectTrigger id="make" className="border-[#E53935]/30 bg-black/50 text-white">
                       <SelectValue placeholder="Select Make" />
                     </SelectTrigger>
                     <SelectContent className="bg-black border-[#E53935]/30 text-white">
                       <SelectItem value="all-makes" className="hover:bg-[#E53935]/10">Select Make</SelectItem>
                       {makes?.map((make) => (
-                        <SelectItem key={make.id} value={make.name} className="hover:bg-[#E53935]/10">
+                        <SelectItem key={make.id} value={make.id.toString()} className="hover:bg-[#E53935]/10">
                           {make.name}
                         </SelectItem>
                       ))}
@@ -101,9 +112,9 @@ const VehicleSearch = () => {
                     <Car className="h-4 w-4 text-[#E53935] mr-2" /> Model
                   </Label>
                   <Select 
-                    value={selectedModel} 
-                    onValueChange={setSelectedModel}
-                    disabled={!selectedMake || selectedMake === "all-makes"}
+                    value={selectedModelId} 
+                    onValueChange={(value) => setSelectedModelId(value)}
+                    disabled={!selectedMakeId || selectedMakeId === "all-makes"}
                   >
                     <SelectTrigger id="model" className="border-[#E53935]/30 bg-black/50 text-white">
                       <SelectValue placeholder="Select Model" />
@@ -111,7 +122,7 @@ const VehicleSearch = () => {
                     <SelectContent className="bg-black border-[#E53935]/30 text-white">
                       <SelectItem value="all-models" className="hover:bg-[#E53935]/10">Select Model</SelectItem>
                       {models?.map((model) => (
-                        <SelectItem key={model.id} value={model.name} className="hover:bg-[#E53935]/10">
+                        <SelectItem key={model.id} value={model.id.toString()} className="hover:bg-[#E53935]/10">
                           {model.name}
                         </SelectItem>
                       ))}
@@ -126,9 +137,9 @@ const VehicleSearch = () => {
                     <Zap className="h-4 w-4 text-[#E53935] mr-2" /> Year
                   </Label>
                   <Select 
-                    value={selectedYear} 
-                    onValueChange={setSelectedYear}
-                    disabled={!selectedModel || selectedModel === "all-models"}
+                    value={selectedYear}
+                    onValueChange={(value) => setSelectedYear(value)}
+                    disabled={!selectedModelId || selectedModelId === "all-models"}
                   >
                     <SelectTrigger id="year" className="border-[#E53935]/30 bg-black/50 text-white">
                       <SelectValue placeholder="Select Year" />
@@ -148,7 +159,10 @@ const VehicleSearch = () => {
                   <Label htmlFor="type" className="block text-sm font-medium text-white/80 mb-1 flex items-center">
                     <Lightbulb className="h-4 w-4 text-[#E53935] mr-2" /> Product Type
                   </Label>
-                  <Select value={selectedType} onValueChange={setSelectedType}>
+                  <Select 
+                    value={selectedType} 
+                    onValueChange={(value) => setSelectedType(value)}
+                  >
                     <SelectTrigger id="type" className="border-[#E53935]/30 bg-black/50 text-white">
                       <SelectValue placeholder="All Types" />
                     </SelectTrigger>
