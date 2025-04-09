@@ -4,7 +4,9 @@
 
 @layer base {
   :root {
-    --brand-red: #E53935;
+    --brand-orange: #FF5A00;
+    --brand-yellow: #FFBF00; 
+    --brand-blue: #00A3FF;
     --brand-white: #FFFFFF;
     --brand-black: #000000;
   }
@@ -41,11 +43,11 @@
 
 @layer components {
   .card-gradient {
-    @apply bg-gradient-to-b from-white/5 to-white/[0.02] border border-white/10 rounded-xl backdrop-blur-sm;
+    @apply bg-gradient-to-b from-black/80 to-black/90 border border-white/10 rounded-xl backdrop-blur-sm;
   }
   
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-[#FFD700] to-white;
   }
   
   .focus-ring {
@@ -54,6 +56,25 @@
   
   .icon-container {
     @apply flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary;
+  }
+  
+  .btn-glow {
+    @apply relative overflow-hidden;
+  }
+  
+  .btn-glow:after {
+    @apply content-[''] absolute top-0 left-[-100%] z-[-1] w-[200%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent;
+    animation: btn-glow 2s infinite;
+  }
+}
+
+/* Custom animation for light beam */
+@keyframes btn-glow {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
   }
 }
 
@@ -73,4 +94,26 @@
 
 .animate-gear-reverse {
   animation: gearRotate 15s linear infinite reverse;
+}
+
+/* Custom lens flare effect */
+.lens-flare {
+  position: relative;
+  overflow: hidden;
+}
+
+.lens-flare:before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 80%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.lens-flare:hover:before {
+  opacity: 0.15;
 }

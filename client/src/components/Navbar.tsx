@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Menu, X, Phone, MessageCircle, ShoppingBag, Settings, Lightbulb } from "lucide-react";
+import { Menu, X, Phone, MessageCircle, ShoppingBag, Lightbulb, LifeBuoy } from "lucide-react";
 import { 
   Sheet, 
   SheetContent, 
@@ -12,15 +12,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { CartItem } from "@/lib/types";
 
-// Custom logo component with gear and lens icons
-const GearLensLogo = () => (
-  <div className="relative w-10 h-10">
-    {/* Gear icon */}
-    <Settings className="absolute inset-0 text-primary w-10 h-10 animate-gear" />
-    {/* Lens/Light icon overlay */}
+// Custom logo component for lens shop
+const LensLogo = () => (
+  <div className="relative w-10 h-10 flex items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#FF5A00] to-[#FFBF00]">
     <div className="absolute inset-0 flex items-center justify-center">
-      <Lightbulb className="w-5 h-5 text-white" />
+      <div className="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center">
+        <Lightbulb className="w-5 h-5 text-white" />
+      </div>
     </div>
+    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-bl from-[#00A3FF]/20 to-transparent mix-blend-overlay"></div>
   </div>
 );
 
@@ -70,17 +70,18 @@ const Navbar = () => {
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${
       scrolled 
-        ? 'bg-black/90 backdrop-blur-md shadow-lg' 
-        : 'bg-black/70 backdrop-blur-sm'
+        ? 'bg-black shadow-lg' 
+        : 'bg-gradient-to-b from-black/90 to-black/30'
     }`}>
+      <div className="border-b border-white/5"></div>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between py-4">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3">
-            <GearLensLogo />
+            <LensLogo />
             <div className="flex flex-col">
               <span className="text-lg font-bold text-white">The Lense Shop</span>
-              <span className="text-xs text-primary/80 font-light -mt-1">Let there be light</span>
+              <span className="text-xs text-primary/90 font-light -mt-1">Let there be light</span>
             </div>
           </Link>
           
@@ -88,32 +89,40 @@ const Navbar = () => {
           <nav className="hidden md:flex space-x-8">
             <Link 
               href="/" 
-              className={`font-medium text-sm uppercase tracking-wide hover:text-primary transition-colors ${
-                location === '/' ? 'text-primary' : 'text-white/80'
+              className={`font-medium text-sm uppercase tracking-wide transition-colors ${
+                location === '/' 
+                  ? 'text-primary' 
+                  : 'text-white/80 hover:text-primary'
               }`}
             >
               Home
             </Link>
             <Link 
               href="/products" 
-              className={`font-medium text-sm uppercase tracking-wide hover:text-primary transition-colors ${
-                location === '/products' ? 'text-primary' : 'text-white/80'
+              className={`font-medium text-sm uppercase tracking-wide transition-colors ${
+                location === '/products' 
+                  ? 'text-primary' 
+                  : 'text-white/80 hover:text-primary'
               }`}
             >
               Products
             </Link>
             <Link 
               href="/about" 
-              className={`font-medium text-sm uppercase tracking-wide hover:text-primary transition-colors ${
-                location === '/about' ? 'text-primary' : 'text-white/80'
+              className={`font-medium text-sm uppercase tracking-wide transition-colors ${
+                location === '/about' 
+                  ? 'text-primary' 
+                  : 'text-white/80 hover:text-primary'
               }`}
             >
               About
             </Link>
             <Link 
               href="/contact" 
-              className={`font-medium text-sm uppercase tracking-wide hover:text-primary transition-colors ${
-                location === '/contact' ? 'text-primary' : 'text-white/80'
+              className={`font-medium text-sm uppercase tracking-wide transition-colors ${
+                location === '/contact' 
+                  ? 'text-primary' 
+                  : 'text-white/80 hover:text-primary'
               }`}
             >
               Contact
@@ -124,23 +133,23 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             <a 
               href="tel:0719377137" 
-              className="hidden md:flex items-center text-sm font-medium text-white/80 hover:text-primary transition-colors"
+              className="hidden md:flex items-center text-sm font-medium text-white/80 hover:text-primary transition-colors bg-black/20 px-2 py-1 rounded-full"
             >
-              <Phone className="h-4 w-4 mr-1" />
+              <Phone className="h-4 w-4 mr-1 text-primary" />
               0719 377 137
             </a>
             <a 
               href="https://wa.me/0772377137" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="hidden md:flex items-center text-sm font-medium text-white/80 hover:text-primary transition-colors"
+              className="hidden md:flex items-center text-sm font-medium text-white/80 hover:text-primary transition-colors bg-black/20 px-2 py-1 rounded-full"
             >
-              <MessageCircle className="h-4 w-4 mr-1" />
+              <MessageCircle className="h-4 w-4 mr-1 text-[#25D366]" />
               WhatsApp
             </a>
             
             {/* Cart Icon */}
-            <Link href="/cart" className="relative text-white/80 hover:text-primary transition-colors">
+            <Link href="/cart" className="relative text-white hover:text-primary transition-colors bg-black/30 p-2 rounded-full">
               <ShoppingBag className="h-5 w-5" />
               {cartItemsCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-primary text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -153,7 +162,7 @@ const Navbar = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="md:hidden text-white/80 hover:text-primary hover:bg-transparent"
+              className="md:hidden text-white hover:text-primary hover:bg-transparent"
               onClick={() => setIsMenuOpen(true)}
             >
               <Menu className="h-6 w-6" />
@@ -162,15 +171,18 @@ const Navbar = () => {
         </div>
       </div>
       
+      {/* Bottom border with brand gradient */}
+      <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+      
       {/* Mobile Menu Sheet */}
       <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-        <SheetContent side="right" className="bg-black/95 text-white border-primary/20">
+        <SheetContent side="right" className="bg-black text-white border-primary/20">
           <SheetHeader className="mb-6">
             <SheetTitle className="text-white flex items-center space-x-2">
-              <GearLensLogo />
+              <LensLogo />
               <span>The Lense Shop</span>
             </SheetTitle>
-            <SheetClose className="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-white">
+            <SheetClose className="absolute top-4 right-4 rounded-full opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-white p-1 bg-black/30">
               <X className="h-4 w-4" />
               <span className="sr-only">Close</span>
             </SheetClose>
@@ -216,7 +228,7 @@ const Navbar = () => {
                   href="/cart" 
                   className="flex items-center py-2 font-medium text-lg text-white/80"
                 >
-                  <ShoppingBag className="h-5 w-5 mr-2" />
+                  <ShoppingBag className="h-5 w-5 mr-2 text-primary" />
                   Cart
                   {cartItemsCount > 0 && (
                     <span className="ml-2 bg-primary text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -230,7 +242,7 @@ const Navbar = () => {
                 href="tel:0719377137" 
                 className="flex items-center py-2 font-medium text-lg text-white/80"
               >
-                <Phone className="h-5 w-5 mr-2" />
+                <Phone className="h-5 w-5 mr-2 text-primary" />
                 0719 377 137
               </a>
               
@@ -240,9 +252,17 @@ const Navbar = () => {
                 rel="noopener noreferrer"
                 className="flex items-center py-2 font-medium text-lg text-white/80"
               >
-                <MessageCircle className="h-5 w-5 mr-2" />
+                <MessageCircle className="h-5 w-5 mr-2 text-[#25D366]" />
                 WhatsApp
               </a>
+              
+              <Link
+                href="/products"
+                className="mt-4 flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-[#FFBF00]/80 text-white rounded-lg py-3 font-bold shadow-lg shadow-primary/20"
+              >
+                <LifeBuoy className="h-5 w-5" />
+                Browse Car Lights
+              </Link>
             </div>
           </div>
         </SheetContent>
