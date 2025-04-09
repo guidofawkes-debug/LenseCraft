@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Menu, X, Phone, MessageCircle, ShoppingBag, Lightbulb, LifeBuoy } from "lucide-react";
+import { Menu, X, Phone, MessageCircle, ShoppingBag, Lightbulb, LifeBuoy, ClipboardList } from "lucide-react";
 import { 
   Sheet, 
   SheetContent, 
@@ -127,6 +127,16 @@ const Navbar = () => {
             >
               Contact
             </Link>
+            <Link 
+              href="/inventory" 
+              className={`font-medium text-sm uppercase tracking-wide transition-colors ${
+                location === '/inventory' 
+                  ? 'text-primary' 
+                  : 'text-white/80 hover:text-primary'
+              }`}
+            >
+              Inventory
+            </Link>
           </nav>
           
           {/* Right Side Icons */}
@@ -222,6 +232,16 @@ const Navbar = () => {
               </Link>
             </SheetClose>
             
+            <SheetClose asChild>
+              <Link 
+                href="/inventory" 
+                className={`py-2 font-medium text-lg ${location === '/inventory' ? 'text-primary' : 'text-white/80'}`}
+              >
+                <ClipboardList className="h-5 w-5 mr-2 inline-block text-primary" />
+                Inventory
+              </Link>
+            </SheetClose>
+            
             <div className="pt-4 border-t border-white/10">
               <SheetClose asChild>
                 <Link 
@@ -258,9 +278,9 @@ const Navbar = () => {
               
               <Link
                 href="/products"
-                className="mt-4 flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-[#FFBF00]/80 text-white rounded-lg py-3 font-bold shadow-lg shadow-primary/20"
+                className="mt-6 flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-[#FFBF00]/80 text-white rounded-lg py-5 font-bold shadow-lg shadow-primary/20 text-lg"
               >
-                <LifeBuoy className="h-5 w-5" />
+                <LifeBuoy className="h-6 w-6" />
                 Browse Car Lights
               </Link>
             </div>

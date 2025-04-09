@@ -43,6 +43,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Error fetching product", error: (error as Error).message });
     }
   });
+  
+  // Product CRUD operations for inventory management
+  app.post("/api/products", async (req: Request, res: Response) => {
+    try {
+      const validatedData = insertProductSchema.parse(req.body);
+      const product = await storage.createProduct(validatedData);
+      res.status(201).json(product);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid product data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Error creating product", error: (error as Error).message });
+    }
+  });
+  
+  app.put("/api/products/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const existingProduct = await storage.getProductById(id);
+      
+      if (!existingProduct) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      
+      // Update product
+      const updatedProduct = await storage.updateProduct(id, req.body);
+      res.json(updatedProduct);
+    } catch (error) {
+      res.status(500).json({ message: "Error updating product", error: (error as Error).message });
+    }
+  });
+  
+  app.delete("/api/products/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const product = await storage.getProductById(id);
+      
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      
+      await storage.deleteProduct(id);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Error deleting product", error: (error as Error).message });
+    }
+  });
 
   // CATEGORIES API ROUTES
   app.get("/api/categories", async (req: Request, res: Response) => {

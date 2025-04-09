@@ -9,6 +9,7 @@ import ProductDetailPage from "@/pages/ProductDetailPage";
 import AboutPage from "@/pages/AboutPage";
 import ContactPage from "@/pages/ContactPage";
 import CartPage from "@/pages/CartPage";
+import InventoryPage from "@/pages/InventoryPage";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -24,6 +25,7 @@ function Router() {
           <Route path="/about" component={AboutPage} />
           <Route path="/contact" component={ContactPage} />
           <Route path="/cart" component={CartPage} />
+          <Route path="/inventory" component={InventoryPage} />
           <Route component={NotFound} />
         </Switch>
       </main>

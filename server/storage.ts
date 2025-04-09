@@ -32,6 +32,8 @@ export interface IStorage {
   }): Promise<Product[]>;
   getProductById(id: number): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
+  updateProduct(id: number, product: Partial<Product>): Promise<Product | undefined>;
+  deleteProduct(id: number): Promise<void>;
   
   // Category operations
   getAllCategories(): Promise<Category[]>;
@@ -164,6 +166,29 @@ export class DatabaseStorage implements IStorage {
       return newProduct;
     } catch (err) {
       log(`Error creating product: ${(err as Error).message}`, 'storage');
+      throw err;
+    }
+  }
+  
+  async updateProduct(id: number, product: Partial<Product>): Promise<Product | undefined> {
+    try {
+      const [updatedProduct] = await db.update(products)
+        .set(product)
+        .where(eq(products.id, id))
+        .returning();
+      
+      return updatedProduct;
+    } catch (err) {
+      log(`Error updating product: ${(err as Error).message}`, 'storage');
+      return undefined;
+    }
+  }
+  
+  async deleteProduct(id: number): Promise<void> {
+    try {
+      await db.delete(products).where(eq(products.id, id));
+    } catch (err) {
+      log(`Error deleting product: ${(err as Error).message}`, 'storage');
       throw err;
     }
   }
