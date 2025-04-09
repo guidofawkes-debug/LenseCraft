@@ -10,6 +10,8 @@ import AboutPage from "@/pages/AboutPage";
 import ContactPage from "@/pages/ContactPage";
 import CartPage from "@/pages/CartPage";
 import InventoryPage from "@/pages/InventoryPage";
+import CheckoutPage from "@/pages/checkout";
+import CheckoutSuccessPage from "@/pages/CheckoutSuccessPage";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -26,6 +28,8 @@ function Router() {
           <Route path="/contact" component={ContactPage} />
           <Route path="/cart" component={CartPage} />
           <Route path="/inventory" component={InventoryPage} />
+          <Route path="/checkout/:sessionId" component={CheckoutPage} />
+          <Route path="/checkout/success" component={CheckoutSuccessPage} />
           <Route component={NotFound} />
         </Switch>
       </main>

@@ -2,6 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
+import Stripe from "stripe";
 import { 
   insertProductSchema, 
   insertCategorySchema, 
@@ -9,6 +10,13 @@ import {
   insertVehicleModelSchema,
   insertCartItemSchema
 } from "@shared/schema";
+
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2025-03-31.basil", // Using the latest API version
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize with sample data
@@ -173,6 +181,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Error removing item from cart", error: (error as Error).message });
+    }
+  });
+  
+  // Clear entire cart for a session (used after successful payment)
+  app.post("/api/cart/:sessionId/clear", async (req: Request, res: Response) => {
+    try {
+      const sessionId = req.params.sessionId;
+      await storage.clearCart(sessionId);
+      res.status(200).json({ message: "Cart cleared successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Error clearing cart", error: (error as Error).message });
+    }
+  });
+  
+  // STRIPE PAYMENT ROUTES
+  app.post("/api/create-payment-intent", async (req: Request, res: Response) => {
+    try {
+      const { amount, cartSessionId } = req.body;
+      
+      if (!amount || typeof amount !== 'number' || amount <= 0) {
+        return res.status(400).json({ message: "Invalid amount" });
+      }
+      
+      // Create a payment intent with Stripe
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert dollars to cents
+        currency: "usd",
+        // Store metadata about the cart session for reference
+        metadata: {
+          cartSessionId
+        },
+        // This enables automatic payment methods for this intent
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+      
+      // Return the client secret to the client to complete the payment
+      res.json({ 
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id
+      });
+    } catch (error) {
+      console.error("Error creating payment intent:", error);
+      res.status(500).json({ 
+        message: "Error creating payment intent", 
+        error: (error as Error).message 
+      });
     }
   });
 

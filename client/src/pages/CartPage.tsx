@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { apiRequest } from "@/lib/queryClient";
 import { CartItem, Product } from "@/lib/types";
-import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, CreditCard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -109,12 +109,17 @@ const CartPage = () => {
     removeItemMutation.mutate(id);
   };
 
-  // Handle checkout (simulated)
+  // Handle checkout with Stripe
   const handleCheckout = () => {
-    toast({
-      title: "Checkout initiated",
-      description: "This would redirect to a payment gateway in a real implementation.",
-    });
+    if (sessionId) {
+      window.location.href = `/checkout/${sessionId}`;
+    } else {
+      toast({
+        title: "Error",
+        description: "Unable to create checkout session. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Prepare WhatsApp order message
@@ -262,10 +267,11 @@ const CartPage = () => {
               
               <div className="space-y-3">
                 <Button 
-                  className="w-full bg-primary hover:bg-primary-dark"
+                  className="w-full bg-primary hover:bg-primary/90 py-6 text-lg font-semibold"
                   onClick={handleCheckout}
                 >
-                  Proceed to Checkout
+                  <CreditCard className="mr-2 h-5 w-5" />
+                  Pay with Stripe
                 </Button>
                 
                 <WhatsAppButton 

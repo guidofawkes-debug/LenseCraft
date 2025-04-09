@@ -55,6 +55,7 @@ export interface IStorage {
   addToCart(cartItem: InsertCartItem): Promise<CartItem>;
   updateCartItemQuantity(id: number, quantity: number): Promise<CartItem | undefined>;
   removeFromCart(id: number): Promise<void>;
+  clearCart(sessionId: string): Promise<void>; // Added method to clear all cart items for a session
 }
 
 export class DatabaseStorage implements IStorage {
@@ -381,6 +382,17 @@ export class DatabaseStorage implements IStorage {
       await db.delete(cartItems).where(eq(cartItems.id, id));
     } catch (err) {
       log(`Error removing from cart: ${(err as Error).message}`, 'storage');
+      throw err;
+    }
+  }
+  
+  async clearCart(sessionId: string): Promise<void> {
+    try {
+      // Delete all cart items for the specified session
+      await db.delete(cartItems).where(eq(cartItems.sessionId, sessionId));
+      log(`Cart cleared for session ${sessionId}`, 'storage');
+    } catch (err) {
+      log(`Error clearing cart: ${(err as Error).message}`, 'storage');
       throw err;
     }
   }
