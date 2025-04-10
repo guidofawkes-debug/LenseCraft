@@ -1,10 +1,10 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { useNavigate } from 'react-router-dom';
-import { useSignInWithEmailAndPassword, useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
 export default function LandingPage() {
@@ -15,21 +15,27 @@ export default function LandingPage() {
     email: ''
   });
   const navigate = useNavigate();
-  const [createUser] = useCreateUserWithEmailAndPassword(auth);
-  const [signIn] = useSignInWithEmailAndPassword(auth);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
       if (isSignup) {
-        const result = await createUser(formData.email, formData.password);
-        if (result) {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          formData.email,
+          formData.password
+        );
+        if (userCredential.user) {
           navigate('/products');
         }
       } else {
-        const result = await signIn(formData.email, formData.password);
-        if (result) {
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          formData.email,
+          formData.password
+        );
+        if (userCredential.user) {
           navigate('/products');
         }
       }
@@ -48,25 +54,14 @@ export default function LandingPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Input
-              type="text"
-              placeholder="Username"
-              value={formData.username}
-              onChange={(e) => setFormData({...formData, username: e.target.value})}
+              type="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
               className="bg-white/5 border-white/10 text-white"
+              required
             />
           </div>
-          
-          {isSignup && (
-            <div>
-              <Input
-                type="email"
-                placeholder="Email"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="bg-white/5 border-white/10 text-white"
-              />
-            </div>
-          )}
           
           <div>
             <Input
@@ -75,6 +70,7 @@ export default function LandingPage() {
               value={formData.password}
               onChange={(e) => setFormData({...formData, password: e.target.value})}
               className="bg-white/5 border-white/10 text-white"
+              required
             />
           </div>
 
