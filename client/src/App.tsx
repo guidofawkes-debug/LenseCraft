@@ -1,51 +1,22 @@
-import { Switch, Route } from "wouter";
-import { queryClient } from "./lib/queryClient";
+
 import { QueryClientProvider } from "@tanstack/react-query";
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
-import NotFound from "@/pages/not-found";
-import HomePage from "@/pages/HomePage";
-import ProductsPage from "@/pages/ProductsPage";
-import ProductDetailPage from "@/pages/ProductDetailPage";
-import AboutPage from "@/pages/AboutPage";
-import ContactPage from "@/pages/ContactPage";
-import CartPage from "@/pages/CartPage";
-import InventoryPage from "@/pages/InventoryPage";
-import CheckoutPage from "@/pages/checkout";
-import CheckoutSuccessPage from "@/pages/CheckoutSuccessPage";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
-function Router() {
-  return (
-    <>
-      <Navbar />
-      <main>
-        <Switch>
-          <Route path="/" component={HomePage} />
-          <Route path="/products" component={ProductsPage} />
-          <Route path="/product/:id" component={ProductDetailPage} />
-          <Route path="/about" component={AboutPage} />
-          <Route path="/contact" component={ContactPage} />
-          <Route path="/cart" component={CartPage} />
-          <Route path="/inventory" component={InventoryPage} />
-          <Route path="/checkout/:sessionId" component={CheckoutPage} />
-          <Route path="/checkout/success" component={CheckoutSuccessPage} />
-          <Route component={NotFound} />
-        </Switch>
-      </main>
-      <Footer />
-    </>
-  );
-}
-
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
-import CartPage from './pages/CartPage';
-import CheckoutPage from './pages/checkout';
+import ProductDetailPage from './pages/ProductDetailPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
+import CartPage from './pages/CartPage';
+import InventoryPage from './pages/InventoryPage';
+import CheckoutPage from './pages/checkout';
+import CheckoutSuccessPage from './pages/CheckoutSuccessPage';
+import NotFound from './pages/not-found';
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const router = createBrowserRouter([
   {
@@ -54,27 +25,97 @@ const router = createBrowserRouter([
   },
   {
     path: '/home',
-    element: <HomePage />
+    element: (
+      <>
+        <Navbar />
+        <HomePage />
+        <Footer />
+      </>
+    )
   },
   {
     path: '/products',
-    element: <ProductsPage />
+    element: (
+      <>
+        <Navbar />
+        <ProductsPage />
+        <Footer />
+      </>
+    )
+  },
+  {
+    path: '/product/:id',
+    element: (
+      <>
+        <Navbar />
+        <ProductDetailPage />
+        <Footer />
+      </>
+    )
   },
   {
     path: '/cart',
-    element: <CartPage />
+    element: (
+      <>
+        <Navbar />
+        <CartPage />
+        <Footer />
+      </>
+    )
   },
   {
-    path: '/checkout',
-    element: <CheckoutPage />
+    path: '/checkout/:sessionId',
+    element: (
+      <>
+        <Navbar />
+        <CheckoutPage />
+        <Footer />
+      </>
+    )
+  },
+  {
+    path: '/checkout/success',
+    element: (
+      <>
+        <Navbar />
+        <CheckoutSuccessPage />
+        <Footer />
+      </>
+    )
   },
   {
     path: '/about',
-    element: <AboutPage />
+    element: (
+      <>
+        <Navbar />
+        <AboutPage />
+        <Footer />
+      </>
+    )
   },
   {
     path: '/contact',
-    element: <ContactPage />
+    element: (
+      <>
+        <Navbar />
+        <ContactPage />
+        <Footer />
+      </>
+    )
+  },
+  {
+    path: '/inventory',
+    element: (
+      <>
+        <Navbar />
+        <InventoryPage />
+        <Footer />
+      </>
+    )
+  },
+  {
+    path: '*',
+    element: <NotFound />
   }
 ]);
 
