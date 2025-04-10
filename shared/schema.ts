@@ -1,3 +1,4 @@
+
 import { pgTable, text, serial, integer, boolean, jsonb, timestamp, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
@@ -37,7 +38,7 @@ export const insertCategorySchema = createInsertSchema(categories).omit({
   id: true,
 });
 
-// Vehicle Make model (Toyota, Honda, etc.)
+// Vehicle Make model
 export const vehicleMakes = pgTable("vehicle_makes", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -47,7 +48,7 @@ export const insertVehicleMakeSchema = createInsertSchema(vehicleMakes).omit({
   id: true,
 });
 
-// Vehicle Model (Corolla, Civic, etc.)
+// Vehicle Model
 export const vehicleModels = pgTable("vehicle_models", {
   id: serial("id").primaryKey(),
   makeId: integer("make_id").notNull(),
@@ -74,7 +75,7 @@ export const insertCartItemSchema = createInsertSchema(cartItems).omit({
   createdAt: true,
 });
 
-// Define types
+// Types
 export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 
@@ -90,7 +91,7 @@ export type InsertVehicleModel = z.infer<typeof insertVehicleModelSchema>;
 export type CartItem = typeof cartItems.$inferSelect;
 export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
 
-// Define relations
+// Relations
 export const productsRelations = relations(products, ({ many }) => ({
   cartItems: many(cartItems),
 }));
@@ -113,7 +114,7 @@ export const cartItemsRelations = relations(cartItems, ({ one }) => ({
   }),
 }));
 
-// Keep the User model from the original template
+// User model
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
