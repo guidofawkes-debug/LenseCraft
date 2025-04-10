@@ -14,10 +14,29 @@ export default function LandingPage() {
   });
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  import { useSignInWithEmailAndPassword, useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { auth } from '@/lib/firebase';
+
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle auth here - for now just redirect
-    navigate('/products');
+    
+    try {
+      if (isSignup) {
+        const [createUser, , error] = useCreateUserWithEmailAndPassword(auth);
+        const result = await createUser(formData.email, formData.password);
+        if (result) {
+          navigate('/products');
+        }
+      } else {
+        const [signIn, , error] = useSignInWithEmailAndPassword(auth);
+        const result = await signIn(formData.email, formData.password);
+        if (result) {
+          navigate('/products');
+        }
+      }
+    } catch (error) {
+      console.error('Authentication error:', error);
+    }
   };
 
   return (
