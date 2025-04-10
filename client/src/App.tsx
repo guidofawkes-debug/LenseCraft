@@ -38,10 +38,50 @@ function Router() {
   );
 }
 
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import LandingPage from './pages/LandingPage';
+import HomePage from './pages/HomePage';
+import ProductsPage from './pages/ProductsPage';
+import CartPage from './pages/CartPage';
+import CheckoutPage from './pages/checkout';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <LandingPage />
+  },
+  {
+    path: '/home',
+    element: <HomePage />
+  },
+  {
+    path: '/products',
+    element: <ProductsPage />
+  },
+  {
+    path: '/cart',
+    element: <CartPage />
+  },
+  {
+    path: '/checkout',
+    element: <CheckoutPage />
+  },
+  {
+    path: '/about',
+    element: <AboutPage />
+  },
+  {
+    path: '/contact',
+    element: <ContactPage />
+  }
+]);
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
+      <RouterProvider router={router} />
       <Toaster />
     </QueryClientProvider>
   );
