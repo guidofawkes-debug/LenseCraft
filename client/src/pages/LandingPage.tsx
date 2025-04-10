@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
+import { useSignInWithEmailAndPassword, useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { auth } from '@/lib/firebase';
 
 export default function LandingPage() {
   const [isSignup, setIsSignup] = useState(false);
@@ -13,22 +15,19 @@ export default function LandingPage() {
     email: ''
   });
   const navigate = useNavigate();
+  const [createUser] = useCreateUserWithEmailAndPassword(auth);
+  const [signIn] = useSignInWithEmailAndPassword(auth);
 
-  import { useSignInWithEmailAndPassword, useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
-import { auth } from '@/lib/firebase';
-
-const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
       if (isSignup) {
-        const [createUser, , error] = useCreateUserWithEmailAndPassword(auth);
         const result = await createUser(formData.email, formData.password);
         if (result) {
           navigate('/products');
         }
       } else {
-        const [signIn, , error] = useSignInWithEmailAndPassword(auth);
         const result = await signIn(formData.email, formData.password);
         if (result) {
           navigate('/products');
